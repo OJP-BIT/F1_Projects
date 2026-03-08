@@ -16,6 +16,8 @@ An interactive Formula 1 strategy dashboard built with Streamlit and Plotly, pow
 ![Lap Time Chart](./assets/Screenshot1.png)
 ![Tire Strategy Chart](./assets/Screenshot2.png)
 ![Pit Stop Chart](./assets/Screenshot3.png)
+![Tyre Degradation](./assets/Screenshot4.png)
+![Sector Times by Drivers](./assets/Screenshot5.png)
 
 ## Project Structure
 
