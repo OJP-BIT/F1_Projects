@@ -66,6 +66,76 @@ def process_pit_stops(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def process_tyre_degradation(lap_df: pd.DataFrame, stints_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge lap data with stint data to compute tyre degradation per compound.
+
+    For each lap, finds the matching stint to determine the compound and how
+    many laps have been run on that set of tyres. Out-laps and in-laps are
+    excluded as they are not representative of true tyre pace.
+
+    Args:
+        lap_df (pd.DataFrame): Raw lap data from /laps endpoint.
+        stints_df (pd.DataFrame): Raw stint data from /stints endpoint.
+
+    Returns:
+        pd.DataFrame: Laps enriched with compound and laps_on_tyre columns.
+    """
+    if lap_df.empty or stints_df.empty:
+        return pd.DataFrame()
+
+    lap_df = lap_df.copy()
+    stints_df = stints_df.copy()
+
+    lap_df["driver_number"] = lap_df["driver_number"].astype(str)
+    stints_df["driver_number"] = stints_df["driver_number"].astype(str)
+
+    stint_cols = [c for c in ["driver_number", "compound", "lap_start", "lap_end", "stint_number"] if c in stints_df.columns]
+    merged = lap_df.merge(stints_df[stint_cols], on="driver_number", how="left")
+
+    # Keep only laps that fall within their matching stint range
+    merged = merged[(merged["lap_number"] >= merged["lap_start"]) &
+                    (merged["lap_number"] <= merged["lap_end"])]
+
+    merged["laps_on_tyre"] = merged["lap_number"] - merged["lap_start"] + 1
+
+    # Remove out-laps (first lap on fresh tyres) and in-laps (slow lap into pits)
+    merged = merged[merged["laps_on_tyre"] > 1]
+    merged = merged[merged["lap_number"] < merged["lap_end"]]
+
+    merged = merged[merged["lap_duration"].notna()]
+    merged["compound"] = merged["compound"].fillna("Unknown")
+
+    return merged
+
+
+def process_sector_times(lap_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract per-lap sector times for each driver.
+
+    Args:
+        lap_df (pd.DataFrame): Raw lap data from /laps endpoint.
+
+    Returns:
+        pd.DataFrame: Laps with driver_number, lap_number, and available sector columns.
+                      Returns empty DataFrame if sector columns are missing.
+    """
+    if lap_df.empty:
+        return pd.DataFrame()
+
+    sector_cols = ["duration_sector_1", "duration_sector_2", "duration_sector_3"]
+    available = [c for c in sector_cols if c in lap_df.columns]
+
+    if not available:
+        return pd.DataFrame()
+
+    keep_cols = ["driver_number", "lap_number"] + available
+    df = lap_df[keep_cols].copy()
+    df = df.dropna(subset=available, how="all")
+    df = df.sort_values(["driver_number", "lap_number"])
+    return df
+
+
 def build_driver_color_map(driver_df: pd.DataFrame) -> dict:
     """
     Build a dictionary that maps driver acronyms to their team color.
