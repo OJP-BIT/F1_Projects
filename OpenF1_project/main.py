@@ -26,7 +26,11 @@ from app.visualizer import (
 st.set_page_config(page_title="F1 Strategy Dashboard", layout="wide")
 
 st.title("🏎️ Formula 1 Strategy Dashboard")
+<<<<<<< HEAD
 st.markdown("Built by Ojas Pawar")
+=======
+st.markdown("Built By Ojas Pawar")
+>>>>>>> 01c70bea8c7bbd766272ec306523c1d04de2a1a0
 
 col1, col2 = st.columns(2)
 

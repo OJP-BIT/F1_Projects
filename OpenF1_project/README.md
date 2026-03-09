@@ -11,11 +11,14 @@ An interactive Formula 1 strategy dashboard built with Streamlit and Plotly, pow
 - Tyre degradation trends per compound with linear regression trendlines
 - Sector time analytics across all three sectors, per driver per lap
 
+<<<<<<< HEAD
 ## Screenshots
 
 ![Lap Time Chart](./assets/Screenshot1.png)
 ![Tire Strategy Chart](./assets/Screenshot2.png)
 ![Pit Stop Chart](./assets/Screenshot3.png)
+=======
+>>>>>>> 01c70bea8c7bbd766272ec306523c1d04de2a1a0
 
 ## Project Structure
 
